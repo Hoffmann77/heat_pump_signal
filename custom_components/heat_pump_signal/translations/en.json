@@ -1,0 +1,65 @@
+{
+  "title": "Heat pump Signal",
+  "config": {  
+    "flow_title": "Heat pump Signal",
+    "step": {
+      "user": {
+        "description": "Setup your Heat pump Signal",
+        "data": {
+          "name": "Name",
+          "grid_power_sensor": "Grid power",
+          "grid_power_sensor_inverted": "Grid export is a negative value",
+          "pv_production_sensor" : "",
+          "consumption_sensor" : "",
+          "consumption_sensor_inverted" : "",
+          "battery_power_sensor": "Battery power entity",
+          "battery_power_sensor_inverted": "Invert battery power",
+          "battery_soc_sensor": "Battery SoC",
+          "heat_pump_power_sensor": "Heat pump power entity",
+          "heat_pump_power_sensor_inverted": "Heat pump power is a negative value"
+        }
+      },
+      "config": {
+        "title": "Configuration",
+        "data": {
+          "heat_pump_power": "Power of the heat pump",
+          "treshold_power": "Treshold",
+          "buffer_power": "Buffer power",
+          "hysteresis": "Hysteresis",
+          "battery_min_soc": "Battery minimal SoC",
+          "battery_min_power": "Battery minimal charging power",
+          "lock_interval": "Lock interval"
+        }
+      }
+    },
+    "error": {
+      "unknown": "Unexpected error. See the logs for more details",
+      "no_name": "Please provide a `Name`"
+    },
+    "abort": {
+      "already_configured": "A Device is already configured"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Configuration",
+        "description": "Configure the Integration",
+        "data": {
+          "inverters_config": "Inverter entities",
+          "encharge_entities": "Enable detailed Entities for ENCHARGE batteries",
+          "cache_token": "Cache the Enphase Token"
+        }
+      }
+    }
+  },
+  "selector": {
+    "inverters_config": {
+      "options": {
+        "gateway_sensor": "Add inverters as gateway sensor",
+        "device": "Add inverters as dedicated devices",
+        "disabled": "Disable inverters"
+      }
+    }
+  }
+}

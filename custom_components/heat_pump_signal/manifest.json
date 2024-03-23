@@ -1,0 +1,13 @@
+{
+  "domain": "heat_pump_signal",
+  "name": "Heat pump Signal",
+  "codeowners": ["@Hoffmann77"],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/Hoffmann77/heat_pump_signal",
+  "integration_type": "hub",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/Hoffmann77/heat_pump_signal/issues",
+  "requirements": [],
+  "version": "0.1.0-alpha"
+}
