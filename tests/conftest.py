@@ -1,14 +1,11 @@
+"""Fixtures for Heat pump signal integration tests."""
 
-import json
-from typing import Any
+# from typing import Any
 from unittest.mock import AsyncMock
-from unittest.mock import patch
+# from unittest.mock import patch
 
-import homeassistant.helpers.entity_registry as er
 import pytest
-import responses
-from _pytest.assertion import truncate
-from homeassistant.const import Platform
+
 from homeassistant.core import HomeAssistant
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from homeassistant.setup import async_setup_component
