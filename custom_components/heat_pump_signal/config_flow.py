@@ -17,7 +17,7 @@ from .const import (
     CONF_LOCK_INTERVAL, CONF_PV_SIGNAL, CONF_PRICE_SIGNAL, CONF_CO2_SIGNAL,
     
     CONF_THRESHOLD, CONF_STATIC_THRESHOLD, CONF_DYNAMIC_THRESHOLD, 
-    CONF_THRESHOLDS_OPTIONAL, 
+    CONF_OPTIONAL_THRESHOLDS, 
     
     CONF_GRID, CONF_GRID_INVERTED, CONF_PV_PRODUCTION,
     CONF_CONSUMPTION, CONF_BATTERY, CONF_BATTERY_INVERTED, CONF_BATTERY_SOC,
@@ -145,7 +145,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         placeholders = {}
 
         # skip step if the signal is not enabled.
-        if not self.data.get(CONF_PV_SIGNAL, False):
+        if not self.data.get(CONF_CO2_SIGNAL, False):
             return await self.async_step_create_entry()
 
         # validate user input
@@ -166,9 +166,9 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_create_entry(self) -> FlowResult:
         """Create the config entry."""
         return self.async_create_entry(
-            title=self.data[CONF_NAME],
+            title=self.title,  # data[CONF_NAME],
             data=self.data,
-            options=self.options_data,
+            options=self.options,
         )
 
     @callback
@@ -293,14 +293,14 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return vol.Schema(schema)
 
     @callback
-    def get_shema_price_signal_step(self, user_input: dict) -> vol.Schema:
+    def get_shema_price_signal_step(self) -> vol.Schema:
         """Return the schema for the price signal step."""
         schema = {}
 
         return vol.Schema(schema)
 
     @callback
-    def get_shema_co2_signal_step(self, user_input: dict) -> vol.Schema:
+    def get_shema_co2_signal_step(self) -> vol.Schema:
         """Return the schema for the co2 signal step."""
         schema = {}
 

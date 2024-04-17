@@ -12,6 +12,16 @@ from homeassistant.setup import async_setup_component
 
 from custom_components.heat_pump_signal.const import DOMAIN
 
+pytest_plugins = "pytest_homeassistant_custom_component"
+
+
+# This fixture enables loading custom integrations in all tests.
+# Remove to enable selective use of this fixture
+@pytest.fixture(autouse=True)
+def auto_enable_custom_integrations(enable_custom_integrations):
+    """Enable loading custom integrations."""
+    yield
+
 
 @pytest.fixture(name="config_entry")
 async def mock_config_entry(hass: HomeAssistant) -> MockConfigEntry:
@@ -22,9 +32,10 @@ async def mock_config_entry(hass: HomeAssistant) -> MockConfigEntry:
         entry_id="904a74160aa6f335526706bee85dfb83",
     )
 
+
 @pytest.fixture(name="setup_integration")
 async def mock_setup_integration(
-    hass: HomeAssistant, config_entry: MockConfigEntry, electricity_maps: AsyncMock
+    hass: HomeAssistant, config_entry: MockConfigEntry
 ) -> None:
     """Fixture for setting up the component."""
     config_entry.add_to_hass(hass)
