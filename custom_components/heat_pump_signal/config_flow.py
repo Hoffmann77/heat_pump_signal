@@ -12,11 +12,19 @@ from homeassistant.helpers import selector
 from homeassistant.const import CONF_NAME
 
 from .const import (
-    DOMAIN, CONF_GRID, CONF_GRID_INVERTED, CONF_PV_PRODUCTION,
+    DOMAIN, 
+    
+    CONF_LOCK_INTERVAL, CONF_PV_SIGNAL, CONF_PRICE_SIGNAL, CONF_CO2_SIGNAL,
+    
+    CONF_THRESHOLD, CONF_STATIC_THRESHOLD, CONF_DYNAMIC_THRESHOLD, 
+    CONF_THRESHOLDS_OPTIONAL, 
+    
+    CONF_GRID, CONF_GRID_INVERTED, CONF_PV_PRODUCTION,
     CONF_CONSUMPTION, CONF_BATTERY, CONF_BATTERY_INVERTED, CONF_BATTERY_SOC,
-    CONF_HEATPUMP, CONF_HEATPUMP_INVERTED, CONF_TRESHOLD,
-    CONF_BAT_MIN_SOC, CONF_BAT_MIN_POWER, CONF_HYSTERESIS, CONF_LOCK_INTERVAL,
-    CONF_REBOUND_INTERVAL, CONF_HEATPUMP_TYP_CONS, CONF_BUFFER_POWER
+    CONF_HEATPUMP, CONF_HEATPUMP_INVERTED, 
+    CONF_THRESHOLD_OPTIONAL, CONF_BAT_MIN_SOC, CONF_BAT_MIN_POWER,
+    CONF_HYSTERESIS, CONF_LOCK_INTERVAL, CONF_REBOUND_INTERVAL,
+    CONF_BUFFER_POWER,
 )
 
 
@@ -33,33 +41,42 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     def __init__(self) -> None:
         """Initialize the config flow."""
-        self.step_data = {}
+        self.title = DEFAULT_TITLE
+        self.data = {}
+        self.options = {}
 
     async def async_step_user(self, user_input=None) -> FlowResult:
         """Handle the user step.
 
-        Allows the user to enter a name and select the required entities.
+        Allows the user to specify a name and enable the desired signals.
 
         """
-        OPTIONALS = (CONF_BATTERY, CONF_BATTERY_SOC, CONF_HEATPUMP)
-
         errors: dict[str, str] = {}
         placeholders: dict[str, str] = {}
 
+        signals = (CONF_PV_SIGNAL, CONF_PRICE_SIGNAL, CONF_CO2_SIGNAL)
+
         if user_input is not None:
+            title = user_input.pop(CONF_NAME)
             data = user_input
 
-            # validate the name
-            if user_input[CONF_NAME] == "":
-                errors["base"] = "no_name"
+            if not title.lstrip(" "):
+                errors["base"] = "name_invalid"
 
-            # set optional sensor entities to `None`.
-            for key in OPTIONALS:
-                if key not in user_input:
-                    self.data[key] = None
+            # Validate that at least one Signal is enbabled.
+            found = False
+            for signal in signals:
+                if user_input.get(signal, False):
+                    found = True
+                    break
 
-            self.step_data["user"] = data
-            return await self.async_step_config()
+            if not found:
+                errors["base"] = "no_signal_enabled"
+
+            if not errors:
+                self.title = title
+                self.data = data
+                return await self.async_step_pv_signal()
 
         user_input = user_input or {}
         return self.async_show_form(
@@ -69,37 +86,90 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors=errors,
         )
 
-    async def async_step_config(self, user_input=None) -> FlowResult:
-        """Handle the configuration step.
+    async def async_step_pv_signal(self, user_input=None) -> FlowResult:
+        """Handle the pv signal configuration step."""
+        errors = {}
+        placeholders = {}
 
-        Allows the user to configure the parameters.
+        # skip step if the signal is not enabled.
+        if not self.data.get(CONF_PV_SIGNAL):
+            return await self.async_step_price_signal()
 
-        Power values into the home grid are positive
-
-        """
-        errors: dict[str, str] = {}
-        placeholders: dict[str, str] = {}
-        user_step_data = self.step_data["user"]
-
+        # validate user input
         if user_input is not None:
-            return self.async_create_entry(
-                title=user_step_data[CONF_NAME],
-                data=user_step_data,
-                options=user_input,
-            )
+            dynamic_threshold = user_input.pop(CONF_DYNAMIC_THRESHOLD)
+            data = user_input
 
-        # description_placeholders["gateway_type"] = self._gateway_reader.name
+            if dynamic_threshold:
+                data[CONF_DYNAMIC_THRESHOLD] = None
+
+            self.options["pv_signal"] = data
+
+            if not errors:
+                return await self.async_step_price_signal()
 
         return self.async_show_form(
-            step_id="config",
-            data_schema=self.get_shema_config_step(),
+            step_id="pv_signal",
+            data_schema=self.get_shema_pv_signal_step(),
+            description_placeholders=placeholders,
             errors=errors,
-            description_placeholders=placeholders
         )
 
-    async def async_step_confirm(self, user_input=None) -> FlowResult:
-        """Handle the confirmation step."""
-        pass
+    async def async_step_price_signal(self, user_input=None) -> FlowResult:
+        """Handle the price signal configuration step."""
+        errors = {}
+        placeholders = {}
+
+        # skip step if the signal is not enabled.
+        if not self.data.get(CONF_PRICE_SIGNAL):
+            return await self.async_step_co2_signal()
+
+        # validate user input
+        if user_input is not None:
+            data = user_input
+            self.options["price_signal"] = data
+
+            if not errors:
+                return await self.async_step_co2_signal()
+
+        return self.async_show_form(
+            step_id="price_signal",
+            data_schema=self.get_shema_price_signal_step(),
+            description_placeholders=placeholders,
+            errors=errors,
+        )
+
+    async def async_step_co2_signal(self, user_input=None) -> FlowResult:
+        """Handle the co2 signal configuration step."""
+        errors = {}
+        placeholders = {}
+
+        # skip step if the signal is not enabled.
+        if not self.data.get(CONF_PV_SIGNAL, False):
+            return await self.async_step_create_entry()
+
+        # validate user input
+        if user_input is not None:
+            data = user_input
+            self.options["co2_signal"] = data
+
+            if not errors:
+                return await self.async_step_create_entry()
+
+        return self.async_show_form(
+            step_id="co2_signal",
+            data_schema=self.get_shema_co2_signal_step(),
+            description_placeholders=placeholders,
+            errors=errors,
+        )
+
+    async def async_step_create_entry(self) -> FlowResult:
+        """Create the config entry."""
+        return self.async_create_entry(
+            title=self.data[CONF_NAME],
+            data=self.data,
+            options=self.options_data,
+        )
 
     @callback
     def get_shema_user_step(self, user_input: dict) -> vol.Schema:
@@ -108,59 +178,141 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             vol.Required(
                 CONF_NAME, default=user_input.get(CONF_NAME, "")
             ): str,
+            vol.Required(CONF_LOCK_INTERVAL): selector.DurationSelector(
+                selector.DurationSelectorConfig(enable_day=False)
+            ),
+            vol.Required(CONF_PV_SIGNAL): selector.BooleanSelector(
+                selector.BooleanSelectorConfig()
+            ),
+            vol.Required(CONF_PRICE_SIGNAL): selector.BooleanSelector(
+                selector.BooleanSelectorConfig()
+            ),
+            vol.Required(CONF_CO2_SIGNAL): selector.BooleanSelector(
+                selector.BooleanSelectorConfig()
+            ),
+        }
+        return vol.Schema(schema)
+
+    @callback
+    def get_shema_pv_signal_step(self) -> vol.Schema:
+        """Return the shema for the pv_signal config step."""
+        schema = {
             vol.Required(CONF_GRID): selector.EntitySelector(
                 selector.EntitySelectorConfig()
             ),
-            vol.Required(CONF_GRID_INVERTED): selector.BooleanSelector(
+            vol.Optional(CONF_GRID_INVERTED): selector.BooleanSelector(
                 selector.BooleanSelectorConfig()
             ),
-            # vol.Optional(CONF_PV_PRODUCTION): selector.EntitySelector(
-            #     selector.EntitySelectorConfig()
-            # ),
-            # vol.Optional(CONF_CONSUMPTION): selector.EntitySelector(
-            #     selector.EntitySelectorConfig()
-            # ),
+            vol.Optional(CONF_BATTERY_SOC): selector.EntitySelector(
+                selector.EntitySelectorConfig()
+            ),
             vol.Optional(CONF_BATTERY): selector.EntitySelector(
                 selector.EntitySelectorConfig()
             ),
             vol.Optional(CONF_BATTERY_INVERTED): selector.BooleanSelector(
                 selector.BooleanSelectorConfig()
             ),
-            vol.Optional(CONF_BATTERY_SOC): selector.EntitySelector(
-                selector.EntitySelectorConfig()
-            ),
             vol.Optional(CONF_HEATPUMP): selector.EntitySelector(
                 selector.EntitySelectorConfig()
             ),
-            # TODO: missing in config_entry
             vol.Optional(CONF_HEATPUMP_INVERTED): selector.BooleanSelector(
                 selector.BooleanSelectorConfig()
+            ),
+            # vol.Optional(CONF_THRESHOLD_ENTITY): selector.EntitySelector(
+            #     selector.EntitySelectorConfig()
+            # ),
+            # # Base threshold
+            vol.Required(CONF_STATIC_THRESHOLD): selector.NumberSelector(
+                selector.NumberSelectorConfig(
+                    min=0,
+                    max=2**32,
+                    unit_of_measurement="Watt",
+                    mode="box",
+                ),
+            ),
+            vol.Optional(CONF_DYNAMIC_THRESHOLD): selector.BooleanSelector(
+                selector.BooleanSelectorConfig()
+            ),
+            # !! disabled for now !!
+            # Optional thresholds
+            # vol.Optional(CONF_THRESHOLDS_OPTIONAL): selector.TextSelector(
+            #     selector.NumberSelectorConfig(
+            #         # type="number",
+            #         multiple=True,
+            #     ),
+            # ),
+            # Buffer power
+            vol.Required(
+                CONF_BUFFER_POWER,
+                default=0,
+            ): selector.NumberSelector(
+                selector.NumberSelectorConfig(
+                    min=0,
+                    max=10**8,
+                    unit_of_measurement="Watt",
+                    mode="box",
+                ),
+            ),
+            # Battery minimum SoC
+            vol.Required(
+                CONF_BAT_MIN_SOC,
+                default=0,
+            ): selector.NumberSelector(
+                selector.NumberSelectorConfig(
+                    min=0,
+                    max=100,
+                    unit_of_measurement="%",
+                    mode="slider",
+                ),
+            ),
+            # Battery minimum power
+            vol.Required(
+                CONF_BAT_MIN_POWER,
+                default=0,
+            ): selector.NumberSelector(
+                selector.NumberSelectorConfig(
+                    min=0,
+                    max=10**8,
+                    unit_of_measurement="Watt",
+                    mode="box",
+                ),
+            ),
+            # Hysteresis
+            vol.Required(
+                CONF_HYSTERESIS,
+                default=200,
+            ): selector.NumberSelector(
+                selector.NumberSelectorConfig(
+                    min=0,
+                    max=10**8,
+                    unit_of_measurement="Watt",
+                    mode="box",
+                ),
             ),
         }
         return vol.Schema(schema)
 
     @callback
-    def get_shema_config_step(self) -> vol.Schema:
-        """Return the schema for the user step."""
-        schema = {
-            vol.Required(CONF_HEATPUMP_TYP_CONS): int,
-            vol.Required(CONF_TRESHOLD): int,
-            vol.Required(CONF_BUFFER_POWER, default=100): int,
-            vol.Required(CONF_BAT_MIN_SOC, default=30): int,
-            vol.Required(CONF_BAT_MIN_POWER, default=30): int,
-            vol.Required(CONF_HYSTERESIS, default=200): int,
-            vol.Required(CONF_LOCK_INTERVAL, default=10): int,
-            vol.Required(CONF_REBOUND_INTERVAL, default=5): int,
-        }
+    def get_shema_price_signal_step(self, user_input: dict) -> vol.Schema:
+        """Return the schema for the price signal step."""
+        schema = {}
+
         return vol.Schema(schema)
 
-    @staticmethod
     @callback
-    def async_get_options_flow(
-            config_entry: config_entries.ConfigEntry,
-    ) -> config_entries.OptionsFlow:
-        """Create the options flow."""
-        return OptionsFlowHandler(config_entry)
+    def get_shema_co2_signal_step(self, user_input: dict) -> vol.Schema:
+        """Return the schema for the co2 signal step."""
+        schema = {}
+
+        return vol.Schema(schema)
+
+    # @staticmethod
+    # @callback
+    # def async_get_options_flow(
+    #         config_entry: config_entries.ConfigEntry,
+    # ) -> config_entries.OptionsFlow:
+    #     """Create the options flow."""
+    #     return OptionsFlowHandler(config_entry)
 
 
 class OptionsFlowHandler(config_entries.OptionsFlow):
@@ -264,7 +416,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                 CONF_HEATPUMP_TYP_CONS, default=data.get(CONF_HEATPUMP_TYP_CONS, "")
             ): int,
             vol.Required(
-                CONF_TRESHOLD, default=data.get(CONF_TRESHOLD, "")
+                CONF_THRESHOLD, default=data.get(CONF_THRESHOLD, "")
             ): int,
         }
         return vol.Schema(schema)

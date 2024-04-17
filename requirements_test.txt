@@ -1,0 +1,7 @@
+###### Requirements ######
+pre-commit==3.6.2
+ruff==0.3.7
+homeassistant
+pytest
+pytest-asyncio
+pytest-homeassistant-custom-component

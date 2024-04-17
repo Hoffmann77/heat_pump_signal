@@ -4,37 +4,45 @@
     "flow_title": "Heat pump Signal",
     "step": {
       "user": {
-        "description": "Setup your Heat pump Signal",
+        "title": "Welcome to Heat pump Signal",
+        "description": "Please configure your Heat pump Signal below.\n **For more information please visit: https://github.com/Hoffmann77/heat_pump_signal**",
         "data": {
           "name": "Name",
-          "grid_power_sensor": "Grid power",
-          "grid_power_sensor_inverted": "Grid export is a negative value",
-          "pv_production_sensor" : "",
-          "consumption_sensor" : "",
-          "consumption_sensor_inverted" : "",
-          "battery_power_sensor": "Battery power entity",
-          "battery_power_sensor_inverted": "Invert battery power",
-          "battery_soc_sensor": "Battery SoC",
-          "heat_pump_power_sensor": "Heat pump power entity",
-          "heat_pump_power_sensor_inverted": "Heat pump power is a negative value"
+          "lock_period": "State change interval",
+          "pv_signal": "Enable the PV Signal",
+          "electicity_price_signal": "Enable the Electicity price Signal",
+          "co2_signal": "Enable the CO2 Signal"
         }
       },
-      "config": {
-        "title": "Configuration",
+      "pv_signal": {
+        "title": "Set up the PV Signal",
+        "description": "Please configure the PV Signal below.\n \n For more information please visit: https://github.com/Hoffmann77/heat_pump_signal",
         "data": {
-          "heat_pump_power": "Power of the heat pump",
-          "treshold_power": "Treshold",
+          "grid_power_sensor": "Grid power entity",
+          "grid_power_sensor_inverted": "Grid export is a positive value",
+          "battery_soc_sensor": "Battery SoC entity",
+          "battery_power_sensor": "Battery power entity",
+          "battery_power_sensor_inverted": "Battery charging power is a positive value",
+          "heat_pump_power_sensor": "Heat pump power entity",
+          "heat_pump_power_sensor_inverted": "Heat pump power is a negative value",
+          "threshold_entity": "Primary treshold entity",
+          "threshold": "Primary treshold",
+          "thresholds_optional": "Optional threshold",
           "buffer_power": "Buffer power",
           "hysteresis": "Hysteresis",
           "battery_min_soc": "Battery minimal SoC",
           "battery_min_power": "Battery minimal charging power",
           "lock_interval": "Lock interval"
-        }
+        },
+        "data_description": {
+              "entities": "The entities to add to the group",
+        },
       }
     },
     "error": {
-      "unknown": "Unexpected error. See the logs for more details",
-      "no_name": "Please provide a `Name`"
+      "unknown": "Unexpected error. See the logs for more details.",
+      "name_invalid": "Please provide a valid 'Name'.",
+      "no_signal_enabled": "You need to enable at least one Signal."
     },
     "abort": {
       "already_configured": "A Device is already configured"
