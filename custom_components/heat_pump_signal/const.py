@@ -20,10 +20,11 @@ CONF_CO2_SIGNAL = "co2_signal"
 
 CONF_STATIC_THRESHOLD = "static_threshold"
 CONF_DYNAMIC_THRESHOLD = "dynamic_threshold"
+CONF_OPTIONAL_THRESHOLDS = "optional_thresholds"
 
 # pv_signal step new
 
-CONF_OPTIONAL_THRESHOLDS = "thresholds_optional"
+
 
 
 

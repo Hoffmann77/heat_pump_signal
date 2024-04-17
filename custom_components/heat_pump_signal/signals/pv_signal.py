@@ -8,7 +8,7 @@ from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN
 from .common import SignalResponse
 from ..utils import StateDescriptor, ERROR_STATES, get_state_as_float
 from ..const import (
-    CONF_THRESHOLD_ENTITY, CONF_OPTIONAL_THRESHOLDS, 
+    CONF_OPTIONAL_THRESHOLDS, 
     CONF_STATIC_THRESHOLD, CONF_DYNAMIC_THRESHOLD,
     
     CONF_GRID, CONF_BATTERY, CONF_BATTERY_SOC, CONF_HEATPUMP, CONF_THRESHOLD,
