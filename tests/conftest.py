@@ -22,6 +22,17 @@ async def mock_config_entry(hass: HomeAssistant) -> MockConfigEntry:
         entry_id="904a74160aa6f335526706bee85dfb83",
     )
 
+@pytest.fixture(name="setup_integration")
+async def mock_setup_integration(
+    hass: HomeAssistant, config_entry: MockConfigEntry, electricity_maps: AsyncMock
+) -> None:
+    """Fixture for setting up the component."""
+    config_entry.add_to_hass(hass)
+
+    assert await async_setup_component(hass, DOMAIN, {})
+    await hass.async_block_till_done()
+
+
 
 @pytest.fixture(name="config_entry")
 def mock_config_entry_fixture(hass: HomeAssistant) -> MockConfigEntry:
@@ -45,12 +56,3 @@ def mock_config_entry_fixture(hass: HomeAssistant) -> MockConfigEntry:
     return mock_entry
 
 
-@pytest.fixture(name="setup_integration")
-async def mock_setup_integration(
-    hass: HomeAssistant, config_entry: MockConfigEntry, electricity_maps: AsyncMock
-) -> None:
-    """Fixture for setting up the component."""
-    config_entry.add_to_hass(hass)
-
-    assert await async_setup_component(hass, DOMAIN, {})
-    await hass.async_block_till_done()
