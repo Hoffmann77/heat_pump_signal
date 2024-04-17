@@ -1,4 +1,5 @@
 custom_components/heat_pump_signal/tests.py
+custom_components/heat_pump_signal/core.config_entries
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
