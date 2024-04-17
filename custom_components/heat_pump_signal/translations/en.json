@@ -35,7 +35,7 @@
           "lock_interval": "Lock interval"
         },
         "data_description": {
-          "entities": "The entities to add to the group"
+          "lock_period": "The entities to add to the group"
         }
       }
     },
