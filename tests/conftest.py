@@ -11,6 +11,9 @@ from _pytest.assertion import truncate
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from pytest_homeassistant_custom_component.common import MockConfigEntry
+from homeassistant.setup import async_setup_component
+
+from custom_components.heat_pump_signal.const import DOMAIN
 
 
 @pytest.fixture(name="config_entry")
@@ -18,7 +21,7 @@ async def mock_config_entry(hass: HomeAssistant) -> MockConfigEntry:
     """Return a MockConfigEntry for testing."""
     return MockConfigEntry(
         domain=DOMAIN,
-        data={CONF_API_KEY: "api_key", "location": ""},
+        data={"CONF_API_KEY": "api_key", "location": ""},
         entry_id="904a74160aa6f335526706bee85dfb83",
     )
 
@@ -34,25 +37,25 @@ async def mock_setup_integration(
 
 
 
-@pytest.fixture(name="config_entry")
-def mock_config_entry_fixture(hass: HomeAssistant) -> MockConfigEntry:
-    """Mock a config entry."""
-    mock_entry = MockConfigEntry(
-        domain="daikin_onecta",
-        data={
-            "auth_implementation": "cloud",
-            "token": {
-                "refresh_token": "mock-refresh-token",
-                "access_token": "mock-access-token",
-                "type": "Bearer",
-                "expires_in": 60,
-                "expires_at": 1000,
-                "scope": 1,
-            },
-        },
-    )
-    mock_entry.add_to_hass(hass)
+# @pytest.fixture(name="config_entry")
+# def mock_config_entry_fixture(hass: HomeAssistant) -> MockConfigEntry:
+#     """Mock a config entry."""
+#     mock_entry = MockConfigEntry(
+#         domain="daikin_onecta",
+#         data={
+#             "auth_implementation": "cloud",
+#             "token": {
+#                 "refresh_token": "mock-refresh-token",
+#                 "access_token": "mock-access-token",
+#                 "type": "Bearer",
+#                 "expires_in": 60,
+#                 "expires_at": 1000,
+#                 "scope": 1,
+#             },
+#         },
+#     )
+#     mock_entry.add_to_hass(hass)
 
-    return mock_entry
+#     return mock_entry
 
 

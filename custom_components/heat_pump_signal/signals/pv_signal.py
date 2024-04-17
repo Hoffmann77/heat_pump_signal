@@ -162,8 +162,8 @@ class PvSignal:
         min_soc = self.config.get(CONF_BAT_MIN_SOC, 0)
         bat_soc = self._get_state_as_float(self.battery_soc_entity, default=0)
         if bat_soc > min_soc:
+            # Dont return negative power if the power is positive.
             if (_power := power + min_power) < 0:
-                # Dont return negative power if the power is positive.
                 return _power
 
         return power
