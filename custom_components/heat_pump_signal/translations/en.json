@@ -33,9 +33,6 @@
           "battery_min_soc": "Battery minimal SoC",
           "battery_min_power": "Battery minimal charging power",
           "lock_interval": "Lock interval"
-        },
-        "data_description": {
-          "lock_period": "The entities to add to the group"
         }
       }
     },
