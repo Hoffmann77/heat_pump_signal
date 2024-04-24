@@ -11,6 +11,8 @@ PLATFORMS = [Platform.SENSOR, Platform.BINARY_SENSOR]
 
 CONF_LOCK_INTERVAL = "lock_interval"
 
+CONF_EXCESS_POWER_SIGNAL = "excess_power_signal"
+
 CONF_PV_SIGNAL = "pv_signal"
 CONF_PRICE_SIGNAL = "electicity_price_signal"
 CONF_CO2_SIGNAL = "co2_signal"

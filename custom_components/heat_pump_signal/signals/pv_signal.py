@@ -1,15 +1,14 @@
-"""Pv Signal module."""
+"""Pv signal."""
 
 import logging
-from dataclasses import dataclass
 
-from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN
-
-from .common import SignalResponse
-from ..utils import StateDescriptor, ERROR_STATES, get_state_as_float
+from ..utils import get_state_as_float
 from ..const import (
     CONF_OPTIONAL_THRESHOLDS, 
     CONF_STATIC_THRESHOLD, CONF_DYNAMIC_THRESHOLD,
+    
+    CONF_PV_SIGNAL,
+    
     
     CONF_GRID, CONF_BATTERY, CONF_BATTERY_SOC, CONF_HEATPUMP, CONF_THRESHOLD,
     CONF_GRID_INVERTED, CONF_BATTERY_INVERTED, CONF_HEATPUMP_INVERTED,
@@ -23,35 +22,20 @@ _LOGGER = logging.getLogger(__name__)
 class PvSignal:
     """Signal class representing a Pv Signal."""
 
-    key = "pv_signal"
-
-    #grid_power = StateDescriptor(default=0, convert_to=float)
-    #battery_power = StateDescriptor(default=0, convert_to=float)
-    #battery_soc = StateDescriptor(default=0, convert_to=float)
-    #heatpump_power = StateDescriptor(default=0, convert_to=float)
+    key = CONF_PV_SIGNAL
 
     def __init__(self, hass, config):
         """Initialize instance."""
         self.hass = hass
         self.config = config
-        # self.curr_state = self.signal_key
-        #self.grid_power_entity = config.get(CONF_GRID)
-        #self.battery_power_entity = config.get(CONF_BATTERY)
-        #self.battery_soc_entity = config.get(CONF_BATTERY_SOC)
-        #self.heatpump_power = config.get(CONF_HEATPUMP)
-        
-        self.static_threshold = config.get(CONF_STATIC_THRESHOLD)
         self.grid_entity = config.get(CONF_GRID)
         self.battery_entity = config.get(CONF_BATTERY)
         self.battery_soc_entity = config.get(CONF_BATTERY_SOC)
         self.heat_pump_entity = config.get(CONF_HEATPUMP)
-        
-        # self._thresholds = None
-        self._curr_states = {}
-        
-    
-    
-    def update(self) -> SignalResponse:
+        self.static_threshold = config.get(CONF_STATIC_THRESHOLD)
+        self.curr_state = False
+
+    def update(self) -> dict:
         """Update the signal and return the SignalResponse obj.
 
         Returns
@@ -60,29 +44,35 @@ class PvSignal:
             Signal response.
 
         """
-        states = {}
-        grid_power = self.get_grid_power()
-        battery_power = self.get_battery_power()
-        heat_pump_power = self.get_heat_pump_power()
-        total_power = self.calc_total_power(
-            grid_power, battery_power, heat_pump_power
+        power_dict = self.get_power_dict()
+        threshold = self.get_threshold()
+        self.curr_state = self.calc_state(
+            power_dict["total_power"], threshold, self.curr_state
         )
-        for name, threshold in self.get_thresholds().items():
-            curr_state = self._curr_states.get(name, False)
-            state = self.calc_state(total_power, threshold, curr_state)
-            states[name] = state
+        return {
+            self.key: self.curr_state,
+            f"{self.key}_threshold": threshold,
+            f"{self.key}_total_power": power_dict["total_power"],
+            f"{self.key}_grid_power": power_dict["grid_power"] * -1,
+            f"{self.key}_battery_power": power_dict["battery_power"] * -1,
+            f"{self.key}_heat_pump_power": power_dict["heat_pump_power"] * -1,
+        }
 
-        self._curr_states = states
+    def get_power_dict(self) -> dict:
+        """Return the power dict."""
+        power_dict = {
+            "grid_power": self.get_grid_power(),
+            "battery_power": self.get_battery_power(),
+            "heat_pump_power": self.get_heat_pump_power(),
+        }
+        try:
+            total_power = power_dict["grid_power"]
+            total_power += power_dict["battery_power"]
+            total_power -= power_dict["heat_pump_power"]
+        except TypeError:
+            total_power = None
 
-        return SignalResponse(
-            primary_state=states.pop(self.key),
-            optional_states=states,
-            metadata={
-                f"{self.key}_threshold": grid_power,
-                f"{self.key}_battery_power": battery_power,
-                f"{self.key}_heat_pump_power": heat_pump_power,
-            },
-        )
+        return power_dict["total_power": total_power]
 
     def calc_state(self, total_power, threshold, curr_state):
         """Calculate the state with the given arguments."""
@@ -100,19 +90,6 @@ class PvSignal:
             return True
         else:
             return False
-
-    def calc_total_power(
-            self, grid_power, battery_power, heat_pump_power
-    ) -> float | None:
-        """Return the total power."""
-        try:
-            total_power = grid_power
-            total_power += battery_power
-            total_power -= heat_pump_power
-        except TypeError:
-            return None
-        else:
-            return total_power
 
     def get_grid_power(self):
         """Return the grid power.
@@ -173,8 +150,7 @@ class PvSignal:
         entity = self.config.get(CONF_GRID)
         if entity is None:
             return
-        
-        
+
         power = self._get_state_as_float(self.heat_pump_entity, default=0)
         if power is None or isinstance(power, str):
             return power
@@ -184,33 +160,22 @@ class PvSignal:
 
         return power
 
-    def get_thresholds(self) -> list[tuple[str, int | float]]:
+    def get_threshold(self) -> dict:
         """Return the thresholds from the config entry.
 
         The dynamic threshold is preferred over the static threshold.
         Uses the static threshold if the dynamic threshold is not usable.
 
         """
-        threshold = self.config.get(CONF_DYNAMIC_THRESHOLD)
-        if threshold is None:
+        entity = self.config.get(CONF_DYNAMIC_THRESHOLD)
+        if entity is not None:
+            threshold = self._get_state_as_float(entity)
+            if threshold is None:
+                threshold = self.static_threshold
+        else:
             threshold = self.static_threshold
 
-        thresholds = {self.key: threshold}
-
-        # can be used for optional thresholds
-        # for threshold in self.config.get(CONF_OPTIONAL_THRESHOLDS):
-        #     try:
-        #         value = float(threshold)
-        #         name = threshold
-        #     except ValueError:
-        #         # threshold seems to be an entity.
-        #         value = self._get_state(threshold)
-        #         name = threshold.split(".")[-1]
-
-        #     thresholds[f"{self.key}_{name}"] = value
-        #     return value
-
-        return thresholds
+        return {self.key: threshold}
 
     def _get_state_as_float(self, entity_id: str, default=None):
         """Return the state of the given entity.

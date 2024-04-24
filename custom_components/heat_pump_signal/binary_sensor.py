@@ -35,31 +35,28 @@ class SignalBinarySensorDescription(BinarySensorEntityDescription):
 BINARY_SENSORS = (
     SignalBinarySensorDescription(
         key="pv_signal",
-        name="PV Signal",
+        name="Excess power signal",
         device_class=BinarySensorDeviceClass.POWER,
         value_fn=lambda data: data.get("pv_signal"),
-        exists_fn=lambda entry: bool(entry.options.get("pv_signal")),
+        exists_fn=lambda entry: entry.data.get("pv_signal", False),
     ),
     SignalBinarySensorDescription(
         key="price_signal",
-        name="Price Signal",
-        # device_class=BinarySensorDeviceClass.POWER,
+        name="Electricity price signal",
         value_fn=lambda data: data.get("price_signal"),
-        exists_fn=lambda entry: bool(entry.options.get("price_signal")),
+        exists_fn=lambda entry: entry.data.get("price_signal", False),
     ),
     SignalBinarySensorDescription(
         key="co2_signal",
-        name="Renewable energy Signal",
-        # device_class=BinarySensorDeviceClass.POWER,
+        name="Renewable energy signal",
         value_fn=lambda data: data.get("co2_signal"),
-        exists_fn=lambda entry: bool(entry.options.get("co2_signal")),
+        exists_fn=lambda entry: entry.data.get("co2_signal", False),
     ),
     SignalBinarySensorDescription(
         key="heat_pump_signal",
-        name="Heat pump Signal",
-        # device_class=BinarySensorDeviceClass.POWER,
+        name="Heat pump signal",
         value_fn=lambda data: data.get("heat_pump_signal"),
-        exists_fn=lambda entry: bool(entry.options.get("heat_pump_signal")),  # TODO: how to check if value exist in data dict
+        exists_fn=lambda entry: entry.options.get("heat_pump_signal", False),
     ),
 )
 

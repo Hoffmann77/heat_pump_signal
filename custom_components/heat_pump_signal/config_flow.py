@@ -27,10 +27,10 @@ from .const import (
     CONF_BUFFER_POWER,
 )
 
+from .signals import SIGNALS
+
 
 _LOGGER = logging.getLogger(__name__)
-
-DEFAULT_TITLE = "Heat pump signal"
 
 
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -41,7 +41,6 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     def __init__(self) -> None:
         """Initialize the config flow."""
-        self.title = DEFAULT_TITLE
         self.data = {}
         self.options = {}
 
@@ -54,18 +53,18 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
         placeholders: dict[str, str] = {}
 
-        signals = (CONF_PV_SIGNAL, CONF_PRICE_SIGNAL, CONF_CO2_SIGNAL)
+        # signals = (CONF_PV_SIGNAL, CONF_PRICE_SIGNAL, CONF_CO2_SIGNAL)
+        # signals = [signal.key for signal in SIGNALS]
 
         if user_input is not None:
-            title = user_input.get(CONF_NAME)  # changed from pop
             data = user_input
 
-            if not title.lstrip(" "):
+            if not data[CONF_NAME].lstrip(" "):
                 errors["base"] = "name_invalid"
 
             # Validate that at least one Signal is enbabled.
             found = False
-            for signal in signals:
+            for signal in [signal.key for signal in SIGNALS]:
                 if user_input.get(signal, False):
                     found = True
                     break
@@ -74,7 +73,6 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 errors["base"] = "no_signal_enabled"
 
             if not errors:
-                self.title = title
                 self.data = data
                 return await self.async_step_pv_signal()
 
@@ -166,7 +164,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_create_entry(self) -> FlowResult:
         """Create the config entry."""
         return self.async_create_entry(
-            title=self.title,  # data[CONF_NAME],
+            title=self.data[CONF_NAME],
             data=self.data,
             options=self.options,
         )

@@ -140,7 +140,7 @@ class SignalUpdateCoordinator(DataUpdateCoordinator):
         data = {}
         for signal in self.sub_signals:
             response = signal.update()
-            data.update(**response.to_dict())
+            data.update(**response)
 
         return data
 

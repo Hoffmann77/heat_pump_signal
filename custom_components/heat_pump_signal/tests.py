@@ -5,16 +5,13 @@ Created on Tue Mar 12 19:50:36 2024
 @author: Bobby
 """
 
-signals = (False, False, False)
+val_1 = 1
+val_2 = 2
 
-for signal in signals:
-    if signal:
-        break
-    else:
-        continue
-        
-    
-    print("ERROR")
+
+val_1 = val_1 +10
+
+print(val_1)
 
 
 
