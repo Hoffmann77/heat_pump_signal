@@ -8,7 +8,7 @@
         "description": "Please configure your Heat pump Signal below.\n **For more information please visit: https://github.com/Hoffmann77/heat_pump_signal**",
         "data": {
           "name": "Name",
-          "lock_period": "State change interval",
+          "lock_interval": "State change interval",
           "pv_signal": "Enable the PV Signal",
           "electicity_price_signal": "Enable the Electicity price Signal",
           "co2_signal": "Enable the CO2 Signal"
@@ -25,21 +25,20 @@
           "battery_power_sensor_inverted": "Battery charging power is a positive value",
           "heat_pump_power_sensor": "Heat pump power entity",
           "heat_pump_power_sensor_inverted": "Heat pump power is a negative value",
-          "threshold_entity": "Primary treshold entity",
-          "threshold": "Primary treshold",
-          "thresholds_optional": "Optional threshold",
+          "static_threshold": "Treshold",
+          "dynamic_threshold": "Enable the dynamic treshold",
+          "optional_thresholds": "Optional threshold",
           "buffer_power": "Buffer power",
           "hysteresis": "Hysteresis",
           "battery_min_soc": "Battery minimal SoC",
-          "battery_min_power": "Battery minimal charging power",
-          "lock_interval": "Lock interval"
+          "battery_min_power": "Battery minimal charging power"
         }
       }
     },
     "error": {
       "unknown": "Unexpected error. See the logs for more details.",
       "name_invalid": "Please provide a valid 'Name'.",
-      "no_signal_enabled": "You need to enable at least one Signal."
+      "no_signal_enabled": "Please enable at least one Signal."
     },
     "abort": {
       "already_configured": "A Device is already configured"

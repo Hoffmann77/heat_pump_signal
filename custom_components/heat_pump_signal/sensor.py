@@ -45,7 +45,7 @@ PV_SIGNAL_SENSORS = (
     ),
     SignalSensorEntityDescription(
         key="pv_signal_excess_power",
-        # name="PV Signal threshold",
+        name="PV Signal threshold",
         native_unit_of_measurement=UnitOfPower.WATT,
         device_class=SensorDeviceClass.POWER,
         state_class=SensorStateClass.MEASUREMENT,

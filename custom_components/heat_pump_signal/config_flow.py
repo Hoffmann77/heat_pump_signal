@@ -57,7 +57,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         signals = (CONF_PV_SIGNAL, CONF_PRICE_SIGNAL, CONF_CO2_SIGNAL)
 
         if user_input is not None:
-            title = user_input.pop(CONF_NAME)
+            title = user_input.get(CONF_NAME)  # changed from pop
             data = user_input
 
             if not title.lstrip(" "):
@@ -230,7 +230,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     mode="box",
                 ),
             ),
-            vol.Optional(CONF_DYNAMIC_THRESHOLD): selector.BooleanSelector(
+            vol.Required(CONF_DYNAMIC_THRESHOLD): selector.BooleanSelector(
                 selector.BooleanSelectorConfig()
             ),
             # !! disabled for now !!

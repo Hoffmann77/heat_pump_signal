@@ -59,7 +59,7 @@ BINARY_SENSORS = (
         name="Heat pump Signal",
         # device_class=BinarySensorDeviceClass.POWER,
         value_fn=lambda data: data.get("heat_pump_signal"),
-        exists_fn=lambda entry: bool(entry.options.get("heat_pump_signal")),
+        exists_fn=lambda entry: bool(entry.options.get("heat_pump_signal")),  # TODO: how to check if value exist in data dict
     ),
 )
 

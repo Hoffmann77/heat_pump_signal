@@ -41,8 +41,11 @@ def get_state_as_float(
         DESCRIPTION.
 
     """
+    if not entity_id:
+        return None
     
-    state_obj = states.get(entity_id)
+    #TODO: check if get has a default
+    state_obj = states.get(entity_id)  # not the dict get
 
     if state_obj is None:
         return None

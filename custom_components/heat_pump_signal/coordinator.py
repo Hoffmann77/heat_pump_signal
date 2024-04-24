@@ -84,7 +84,7 @@ class SignalUpdateCoordinator(DataUpdateCoordinator):
     def signal_locked(self) -> bool:
         """Return whether the signal is locked."""
         now = datetime.now(timezone.utc)
-        if now >= self.last_change + self.lock_interval:
+        if now >= self.signal_last_change + self.signal_lock_interval:
             return False
 
         return True
