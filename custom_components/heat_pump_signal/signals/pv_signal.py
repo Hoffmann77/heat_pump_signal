@@ -70,9 +70,11 @@ class PvSignal:
             total_power += power_dict["battery_power"]
             total_power -= power_dict["heat_pump_power"]
         except TypeError:
-            total_power = None
+            power_dict["total_power"] = None
+        else:
+            power_dict["total_power"] = total_power
 
-        return power_dict["total_power": total_power]
+        return power_dict
 
     def calc_state(self, total_power, threshold, curr_state):
         """Calculate the state with the given arguments."""

@@ -17,7 +17,7 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 
-from .const import DOMAIN
+from .const import DOMAIN, CONF_PV_SIGNAL
 from .coordinator import SignalUpdateCoordinator
 from .entity import SignalCoordinatorEntity
 
@@ -35,48 +35,48 @@ class SignalSensorEntityDescription(SensorEntityDescription):
 
 PV_SIGNAL_SENSORS = (
     SignalSensorEntityDescription(
-        key="pv_signal_threshold",
+        key=f"{CONF_PV_SIGNAL}_threshold",
         name="Excess power threshold",
         native_unit_of_measurement=UnitOfPower.WATT,
         device_class=SensorDeviceClass.POWER,
         state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda data: data.get("pv_signal_threshold"),
+        value_fn=lambda data: data.get(f"{CONF_PV_SIGNAL}_threshold"),
         exists_fn=lambda entry: bool(entry.options.get("pv_signal")),
     ),
     SignalSensorEntityDescription(
-        key="pv_signal_total_power",
+        key=f"{CONF_PV_SIGNAL}_total_power",
         name="Total power",
         native_unit_of_measurement=UnitOfPower.WATT,
         device_class=SensorDeviceClass.POWER,
         state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda data: data.get("pv_signal_total_power"),
+        value_fn=lambda data: data.get(f"{CONF_PV_SIGNAL}_total_power"),
         exists_fn=lambda entry: bool(entry.options.get("pv_signal")),
     ),
     SignalSensorEntityDescription(
-        key="pv_signal_grid_power",
+        key=f"{CONF_PV_SIGNAL}_grid_power",
         name="Grid power",
         native_unit_of_measurement=UnitOfPower.WATT,
         device_class=SensorDeviceClass.POWER,
         state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda data: data.get("pv_signal_grid_power"),
+        value_fn=lambda data: data.get(f"{CONF_PV_SIGNAL}l_grid_power"),
         exists_fn=lambda entry: bool(entry.options.get("pv_signal")),
     ),
     SignalSensorEntityDescription(
-        key="pv_signal_battery_power",
+        key=f"{CONF_PV_SIGNAL}_battery_power",
         name="Battery power",
         native_unit_of_measurement=UnitOfPower.WATT,
         device_class=SensorDeviceClass.POWER,
         state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda data: data.get("pv_signal_battery_power"),
+        value_fn=lambda data: data.get(f"{CONF_PV_SIGNAL}_battery_power"),
         exists_fn=lambda entry: bool(entry.options.get("pv_signal")),
     ),
     SignalSensorEntityDescription(
-        key="pv_signal_heat_pump_power",
+        key=f"{CONF_PV_SIGNAL}_heat_pump_power",
         name="Heat pump power",
         native_unit_of_measurement=UnitOfPower.WATT,
         device_class=SensorDeviceClass.POWER,
         state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda data: data.get("pv_signal_heat_pump_power"),
+        value_fn=lambda data: data.get(f"{CONF_PV_SIGNAL}_heat_pump_power"),
         exists_fn=lambda entry: bool(entry.options.get("pv_signal")),
     ),
 )

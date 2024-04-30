@@ -13,7 +13,7 @@ from homeassistant.components.binary_sensor import (
     BinarySensorEntityDescription
 )
 
-from .const import DOMAIN
+from .const import DOMAIN, CONF_PV_SIGNAL
 from .coordinator import SignalUpdateCoordinator
 from .entity import SignalCoordinatorEntity
 
@@ -34,11 +34,11 @@ class SignalBinarySensorDescription(BinarySensorEntityDescription):
 
 BINARY_SENSORS = (
     SignalBinarySensorDescription(
-        key="pv_signal",
+        key=CONF_PV_SIGNAL,
         name="Excess power signal",
         device_class=BinarySensorDeviceClass.POWER,
-        value_fn=lambda data: data.get("pv_signal"),
-        exists_fn=lambda entry: entry.data.get("pv_signal", False),
+        value_fn=lambda data: data.get(CONF_PV_SIGNAL),
+        exists_fn=lambda entry: entry.data.get(CONF_PV_SIGNAL, False),
     ),
     SignalBinarySensorDescription(
         key="price_signal",
