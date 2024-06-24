@@ -1,6 +1,6 @@
 ###### Requirements ######
 pre-commit==3.6.2
-ruff==0.4.9
+ruff==0.4.10
 homeassistant
 pytest
 pytest-asyncio
